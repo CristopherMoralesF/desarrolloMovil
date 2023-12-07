@@ -78,14 +78,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       initialLocation: '/',
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
-      errorBuilder: (context, state) =>
-          appStateNotifier.loggedIn ? MainMenuWidget() : LoginWidget(),
+      errorBuilder: (context, state) => appStateNotifier.loggedIn
+          ? InventarioVacasWidget()
+          : MainMenuWidget(),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) =>
-              appStateNotifier.loggedIn ? MainMenuWidget() : LoginWidget(),
+          builder: (context, _) => appStateNotifier.loggedIn
+              ? InventarioVacasWidget()
+              : MainMenuWidget(),
         ),
         FFRoute(
           name: 'Login',
@@ -100,22 +102,47 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: 'InventarioVacas',
           path: '/inventarioVacas',
-          builder: (context, params) => InventarioVacasWidget(),
+          asyncParams: {
+            'historialVaca': getDoc(
+                ['RegistroEnfermedad'], RegistroEnfermedadRecord.fromSnapshot),
+          },
+          builder: (context, params) => InventarioVacasWidget(
+            historialVaca: params.getParam('historialVaca', ParamType.Document),
+          ),
         ),
         FFRoute(
           name: 'editarVaca',
           path: '/editarVaca',
-          builder: (context, params) => EditarVacaWidget(),
+          asyncParams: {
+            'detalleVaca': getDoc(['Vaca'], VacaRecord.fromSnapshot),
+          },
+          builder: (context, params) => EditarVacaWidget(
+            detalleVaca: params.getParam('detalleVaca', ParamType.Document),
+          ),
         ),
         FFRoute(
           name: 'eliminarVaca',
           path: '/eliminarVaca',
-          builder: (context, params) => EliminarVacaWidget(),
+          asyncParams: {
+            'eliminarVaca': getDoc(['Vaca'], VacaRecord.fromSnapshot),
+          },
+          builder: (context, params) => EliminarVacaWidget(
+            eliminarVaca: params.getParam('eliminarVaca', ParamType.Document),
+          ),
         ),
         FFRoute(
           name: 'registrosMedicosVaca',
           path: '/registrosMedicosVaca',
-          builder: (context, params) => RegistrosMedicosVacaWidget(),
+          asyncParams: {
+            'historialVaca': getDoc(['Vaca'], VacaRecord.fromSnapshot),
+            'historialEnfermedades': getDoc(
+                ['RegistroEnfermedad'], RegistroEnfermedadRecord.fromSnapshot),
+          },
+          builder: (context, params) => RegistrosMedicosVacaWidget(
+            historialVaca: params.getParam('historialVaca', ParamType.Document),
+            historialEnfermedades:
+                params.getParam('historialEnfermedades', ParamType.Document),
+          ),
         ),
         FFRoute(
           name: 'ingresarVaca',
@@ -125,7 +152,17 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: 'AgregarEnfermedad',
           path: '/agregarEnfermedad',
-          builder: (context, params) => AgregarEnfermedadWidget(),
+          asyncParams: {
+            'registroEnfermedad':
+                getDoc(['RegistroVenta'], RegistroVentaRecord.fromSnapshot),
+            'tratamiento': getDoc(
+                ['RegistroEnfermedad'], RegistroEnfermedadRecord.fromSnapshot),
+          },
+          builder: (context, params) => AgregarEnfermedadWidget(
+            registroEnfermedad:
+                params.getParam('registroEnfermedad', ParamType.Document),
+            tratamiento: params.getParam('tratamiento', ParamType.Document),
+          ),
         ),
         FFRoute(
           name: 'EditarEnfermedad',
@@ -174,6 +211,26 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'registrarLecheria',
           path: '/registrarLecheria',
           builder: (context, params) => RegistrarLecheriaWidget(),
+        ),
+        FFRoute(
+          name: 'CSVTemplate',
+          path: '/cSVTemplate',
+          builder: (context, params) => CSVTemplateWidget(),
+        ),
+        FFRoute(
+          name: 'CSVReporteVentas',
+          path: '/cSVReporteVentas',
+          builder: (context, params) => CSVReporteVentasWidget(),
+        ),
+        FFRoute(
+          name: 'CSVReporteLeche',
+          path: '/cSVReporteLeche',
+          builder: (context, params) => CSVReporteLecheWidget(),
+        ),
+        FFRoute(
+          name: 'CSVReporteVacas',
+          path: '/cSVReporteVacas',
+          builder: (context, params) => CSVReporteVacasWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
@@ -340,7 +397,7 @@ class FFRoute {
 
           if (requireAuth && !appStateNotifier.loggedIn) {
             appStateNotifier.setRedirectLocationIfUnset(state.location);
-            return '/login';
+            return '/mainMenu';
           }
           return null;
         },

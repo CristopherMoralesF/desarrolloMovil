@@ -21,32 +21,56 @@ class VacaRecord extends FirestoreRecord {
   String get photoUrl => _photoUrl ?? '';
   bool hasPhotoUrl() => _photoUrl != null;
 
-  // "uid" field.
-  String? _uid;
-  String get uid => _uid ?? '';
-  bool hasUid() => _uid != null;
+  // "nombre_vaca" field.
+  String? _nombreVaca;
+  String get nombreVaca => _nombreVaca ?? '';
+  bool hasNombreVaca() => _nombreVaca != null;
 
-  // "created_time" field.
-  DateTime? _createdTime;
-  DateTime? get createdTime => _createdTime;
-  bool hasCreatedTime() => _createdTime != null;
+  // "comprado" field.
+  bool? _comprado;
+  bool get comprado => _comprado ?? false;
+  bool hasComprado() => _comprado != null;
 
-  // "edited_time" field.
-  DateTime? _editedTime;
-  DateTime? get editedTime => _editedTime;
-  bool hasEditedTime() => _editedTime != null;
+  // "peso_vaca" field.
+  int? _pesoVaca;
+  int get pesoVaca => _pesoVaca ?? 0;
+  bool hasPesoVaca() => _pesoVaca != null;
 
-  // "bio" field.
-  String? _bio;
-  String get bio => _bio ?? '';
-  bool hasBio() => _bio != null;
+  // "fecha_nacimiento" field.
+  DateTime? _fechaNacimiento;
+  DateTime? get fechaNacimiento => _fechaNacimiento;
+  bool hasFechaNacimiento() => _fechaNacimiento != null;
+
+  // "sexo_vaca" field.
+  String? _sexoVaca;
+  String get sexoVaca => _sexoVaca ?? '';
+  bool hasSexoVaca() => _sexoVaca != null;
+
+  // "padre_vaca" field.
+  String? _padreVaca;
+  String get padreVaca => _padreVaca ?? '';
+  bool hasPadreVaca() => _padreVaca != null;
+
+  // "madre_vaca" field.
+  String? _madreVaca;
+  String get madreVaca => _madreVaca ?? '';
+  bool hasMadreVaca() => _madreVaca != null;
+
+  // "lecheria" field.
+  DocumentReference? _lecheria;
+  DocumentReference? get lecheria => _lecheria;
+  bool hasLecheria() => _lecheria != null;
 
   void _initializeFields() {
     _photoUrl = snapshotData['photo_url'] as String?;
-    _uid = snapshotData['uid'] as String?;
-    _createdTime = snapshotData['created_time'] as DateTime?;
-    _editedTime = snapshotData['edited_time'] as DateTime?;
-    _bio = snapshotData['bio'] as String?;
+    _nombreVaca = snapshotData['nombre_vaca'] as String?;
+    _comprado = snapshotData['comprado'] as bool?;
+    _pesoVaca = castToType<int>(snapshotData['peso_vaca']);
+    _fechaNacimiento = snapshotData['fecha_nacimiento'] as DateTime?;
+    _sexoVaca = snapshotData['sexo_vaca'] as String?;
+    _padreVaca = snapshotData['padre_vaca'] as String?;
+    _madreVaca = snapshotData['madre_vaca'] as String?;
+    _lecheria = snapshotData['lecheria'] as DocumentReference?;
   }
 
   static CollectionReference get collection =>
@@ -84,18 +108,26 @@ class VacaRecord extends FirestoreRecord {
 
 Map<String, dynamic> createVacaRecordData({
   String? photoUrl,
-  String? uid,
-  DateTime? createdTime,
-  DateTime? editedTime,
-  String? bio,
+  String? nombreVaca,
+  bool? comprado,
+  int? pesoVaca,
+  DateTime? fechaNacimiento,
+  String? sexoVaca,
+  String? padreVaca,
+  String? madreVaca,
+  DocumentReference? lecheria,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
       'photo_url': photoUrl,
-      'uid': uid,
-      'created_time': createdTime,
-      'edited_time': editedTime,
-      'bio': bio,
+      'nombre_vaca': nombreVaca,
+      'comprado': comprado,
+      'peso_vaca': pesoVaca,
+      'fecha_nacimiento': fechaNacimiento,
+      'sexo_vaca': sexoVaca,
+      'padre_vaca': padreVaca,
+      'madre_vaca': madreVaca,
+      'lecheria': lecheria,
     }.withoutNulls,
   );
 
@@ -108,15 +140,28 @@ class VacaRecordDocumentEquality implements Equality<VacaRecord> {
   @override
   bool equals(VacaRecord? e1, VacaRecord? e2) {
     return e1?.photoUrl == e2?.photoUrl &&
-        e1?.uid == e2?.uid &&
-        e1?.createdTime == e2?.createdTime &&
-        e1?.editedTime == e2?.editedTime &&
-        e1?.bio == e2?.bio;
+        e1?.nombreVaca == e2?.nombreVaca &&
+        e1?.comprado == e2?.comprado &&
+        e1?.pesoVaca == e2?.pesoVaca &&
+        e1?.fechaNacimiento == e2?.fechaNacimiento &&
+        e1?.sexoVaca == e2?.sexoVaca &&
+        e1?.padreVaca == e2?.padreVaca &&
+        e1?.madreVaca == e2?.madreVaca &&
+        e1?.lecheria == e2?.lecheria;
   }
 
   @override
-  int hash(VacaRecord? e) => const ListEquality()
-      .hash([e?.photoUrl, e?.uid, e?.createdTime, e?.editedTime, e?.bio]);
+  int hash(VacaRecord? e) => const ListEquality().hash([
+        e?.photoUrl,
+        e?.nombreVaca,
+        e?.comprado,
+        e?.pesoVaca,
+        e?.fechaNacimiento,
+        e?.sexoVaca,
+        e?.padreVaca,
+        e?.madreVaca,
+        e?.lecheria
+      ]);
 
   @override
   bool isValidKey(Object? o) => o is VacaRecord;

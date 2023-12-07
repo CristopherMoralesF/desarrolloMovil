@@ -11,7 +11,7 @@ export '/administracion_vacas/registros_medicos_vaca/registros_medicos_vaca_widg
     show RegistrosMedicosVacaWidget;
 export '/administracion_vacas/ingresar_vaca/ingresar_vaca_widget.dart'
     show IngresarVacaWidget;
-export '/administracion_vacas/agregar_enfermedad/agregar_enfermedad_widget.dart'
+export '/home/agregar_enfermedad/agregar_enfermedad_widget.dart'
     show AgregarEnfermedadWidget;
 export '/administracion_vacas/editar_enfermedad/editar_enfermedad_widget.dart'
     show EditarEnfermedadWidget;
@@ -30,3 +30,11 @@ export '/app_administration/administrar_usuarios/administrar_usuarios_widget.dar
     show AdministrarUsuariosWidget;
 export '/login/registrar_lecheria/registrar_lecheria_widget.dart'
     show RegistrarLecheriaWidget;
+export '/app_administration/c_s_v_template/c_s_v_template_widget.dart'
+    show CSVTemplateWidget;
+export '/app_administration/c_s_v_reporte_ventas/c_s_v_reporte_ventas_widget.dart'
+    show CSVReporteVentasWidget;
+export '/app_administration/c_s_v_reporte_leche/c_s_v_reporte_leche_widget.dart'
+    show CSVReporteLecheWidget;
+export '/app_administration/c_s_v_reporte_vacas/c_s_v_reporte_vacas_widget.dart'
+    show CSVReporteVacasWidget;

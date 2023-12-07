@@ -1,9 +1,11 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +13,14 @@ import 'agregar_enfermedad_model.dart';
 export 'agregar_enfermedad_model.dart';
 
 class AgregarEnfermedadWidget extends StatefulWidget {
-  const AgregarEnfermedadWidget({Key? key}) : super(key: key);
+  const AgregarEnfermedadWidget({
+    Key? key,
+    required this.registroEnfermedad,
+    required this.tratamiento,
+  }) : super(key: key);
+
+  final RegistroVentaRecord? registroEnfermedad;
+  final RegistroEnfermedadRecord? tratamiento;
 
   @override
   _AgregarEnfermedadWidgetState createState() =>
@@ -27,11 +36,6 @@ class _AgregarEnfermedadWidgetState extends State<AgregarEnfermedadWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => AgregarEnfermedadModel());
-
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      context.pushNamed('mainMenu');
-    });
 
     _model.textController1 ??= TextEditingController();
     _model.textFieldFocusNode1 ??= FocusNode();
@@ -57,6 +61,8 @@ class _AgregarEnfermedadWidgetState extends State<AgregarEnfermedadWidget> {
         ),
       );
     }
+
+    context.watch<FFAppState>();
 
     return GestureDetector(
       onTap: () => _model.unfocusNode.canRequestFocus
@@ -113,7 +119,7 @@ class _AgregarEnfermedadWidgetState extends State<AgregarEnfermedadWidget> {
                       autofocus: true,
                       obscureText: false,
                       decoration: InputDecoration(
-                        labelText: 'Indique el nombre de la enfemedad',
+                        labelText: 'Indique el nombre de la enfermedad',
                         labelStyle: FlutterFlowTheme.of(context).labelMedium,
                         hintStyle: FlutterFlowTheme.of(context).labelMedium,
                         enabledBorder: OutlineInputBorder(
@@ -211,7 +217,12 @@ class _AgregarEnfermedadWidgetState extends State<AgregarEnfermedadWidget> {
                             0.0, 25.0, 0.0, 10.0),
                         child: FFButtonWidget(
                           onPressed: () async {
-                            context.pushNamed('registrosMedicosVaca');
+                            await RegistroEnfermedadRecord.collection
+                                .doc()
+                                .set(createRegistroEnfermedadRecordData(
+                                  nombreEnfermedad: _model.textController1.text,
+                                  descripcion: _model.textController2.text,
+                                ));
                           },
                           text: 'Guardar',
                           icon: Icon(
@@ -244,8 +255,12 @@ class _AgregarEnfermedadWidgetState extends State<AgregarEnfermedadWidget> {
                         padding: EdgeInsetsDirectional.fromSTEB(
                             0.0, 25.0, 0.0, 10.0),
                         child: FFButtonWidget(
-                          onPressed: () {
-                            print('Button pressed ...');
+                          onPressed: () async {
+                            await RegistroEnfermedadRecord.collection
+                                .doc()
+                                .set(createRegistroEnfermedadRecordData(
+                                  tratamiento: _model.textController2.text,
+                                ));
                           },
                           text: 'Agregar Tratamiento',
                           icon: Icon(
@@ -286,80 +301,118 @@ class _AgregarEnfermedadWidgetState extends State<AgregarEnfermedadWidget> {
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(25.0, 0.0, 25.0, 0.0),
-                      child: ListView(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        scrollDirection: Axis.vertical,
-                        children: [
-                          Card(
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            color: FlutterFlowTheme.of(context)
-                                .secondaryBackground,
-                            elevation: 4.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      25.0, 25.0, 0.0, 25.0),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Paracetamol Vacuno',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .override(
-                                              fontFamily: 'Readex Pro',
-                                              fontSize: 22.0,
+                      child: StreamBuilder<List<RegistroEnfermedadRecord>>(
+                        stream: queryRegistroEnfermedadRecord(),
+                        builder: (context, snapshot) {
+                          // Customize what your widget looks like when it's loading.
+                          if (!snapshot.hasData) {
+                            return Center(
+                              child: SizedBox(
+                                width: 50.0,
+                                height: 50.0,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    FlutterFlowTheme.of(context).primary,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          List<RegistroEnfermedadRecord>
+                              listViewRegistroEnfermedadRecordList =
+                              snapshot.data!;
+                          return ListView.separated(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            scrollDirection: Axis.vertical,
+                            itemCount:
+                                listViewRegistroEnfermedadRecordList.length,
+                            separatorBuilder: (_, __) => SizedBox(height: 10.0),
+                            itemBuilder: (context, listViewIndex) {
+                              final listViewRegistroEnfermedadRecord =
+                                  listViewRegistroEnfermedadRecordList[
+                                      listViewIndex];
+                              return Card(
+                                clipBehavior: Clip.antiAliasWithSaveLayer,
+                                color: FlutterFlowTheme.of(context)
+                                    .secondaryBackground,
+                                elevation: 4.0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          25.0, 25.0, 0.0, 25.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            valueOrDefault<String>(
+                                              widget.tratamiento
+                                                  ?.nombreEnfermedad,
+                                              'Sana',
                                             ),
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodyMedium
+                                                .override(
+                                                  fontFamily: 'Readex Pro',
+                                                  fontSize: 22.0,
+                                                ),
+                                          ),
+                                          Text(
+                                            valueOrDefault<String>(
+                                              widget.tratamiento?.descripcion,
+                                              'No Aplica',
+                                            ),
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodyMedium,
+                                          ),
+                                        ],
                                       ),
-                                      Text(
-                                        '25g cada 8 horas',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          0.0, 25.0, 10.0, 25.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          FlutterFlowIconButton(
+                                            borderColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .secondary,
+                                            borderRadius: 20.0,
+                                            borderWidth: 1.0,
+                                            buttonSize: 40.0,
+                                            fillColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .primary,
+                                            icon: Icon(
+                                              Icons.delete,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryBackground,
+                                              size: 24.0,
+                                            ),
+                                            onPressed: () {
+                                              print('IconButton pressed ...');
+                                            },
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 25.0, 10.0, 25.0),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      FlutterFlowIconButton(
-                                        borderColor:
-                                            FlutterFlowTheme.of(context)
-                                                .secondary,
-                                        borderRadius: 20.0,
-                                        borderWidth: 1.0,
-                                        buttonSize: 40.0,
-                                        fillColor: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        icon: Icon(
-                                          Icons.delete,
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
-                                          size: 24.0,
-                                        ),
-                                        onPressed: () {
-                                          print('IconButton pressed ...');
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ].divide(SizedBox(height: 10.0)),
+                              );
+                            },
+                          );
+                        },
                       ),
                     ),
                   ],

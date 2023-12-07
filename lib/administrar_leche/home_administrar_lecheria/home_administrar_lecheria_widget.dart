@@ -4,7 +4,6 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import '/flutter_flow/random_data_util.dart' as random_data;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -54,6 +53,8 @@ class _HomeAdministrarLecheriaWidgetState
         ),
       );
     }
+
+    context.watch<FFAppState>();
 
     return GestureDetector(
       onTap: () => _model.unfocusNode.canRequestFocus
@@ -133,43 +134,63 @@ class _HomeAdministrarLecheriaWidgetState
                                     ),
                               ),
                             ),
-                            Container(
-                              width: MediaQuery.sizeOf(context).width * 1.0,
-                              height: 127.0,
-                              child: FlutterFlowLineChart(
-                                data: [
-                                  FFLineChartData(
-                                    xData: List.generate(
-                                        random_data.randomInteger(1, 10),
-                                        (index) =>
-                                            random_data.randomInteger(0, 10)),
-                                    yData: List.generate(
-                                        random_data.randomInteger(1, 10),
-                                        (index) =>
-                                            random_data.randomInteger(0, 10)),
-                                    settings: LineChartBarData(
-                                      color:
+                            FutureBuilder<List<IngresoLecheRecord>>(
+                              future: queryIngresoLecheRecordOnce(),
+                              builder: (context, snapshot) {
+                                // Customize what your widget looks like when it's loading.
+                                if (!snapshot.hasData) {
+                                  return Center(
+                                    child: SizedBox(
+                                      width: 50.0,
+                                      height: 50.0,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
                                           FlutterFlowTheme.of(context).primary,
-                                      barWidth: 2.0,
-                                      isCurved: true,
-                                      dotData: FlDotData(show: false),
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        color: FlutterFlowTheme.of(context)
-                                            .accent1,
+                                        ),
                                       ),
                                     ),
-                                  )
-                                ],
-                                chartStylingInfo: ChartStylingInfo(
-                                  backgroundColor:
-                                      FlutterFlowTheme.of(context).primary,
-                                  showBorder: false,
-                                ),
-                                axisBounds: AxisBounds(),
-                                xAxisLabelInfo: AxisLabelInfo(),
-                                yAxisLabelInfo: AxisLabelInfo(),
-                              ),
+                                  );
+                                }
+                                List<IngresoLecheRecord>
+                                    chartIngresoLecheRecordList =
+                                    snapshot.data!;
+                                return Container(
+                                  width: MediaQuery.sizeOf(context).width * 1.0,
+                                  height: 127.0,
+                                  child: FlutterFlowLineChart(
+                                    data: [
+                                      FFLineChartData(
+                                        xData: chartIngresoLecheRecordList
+                                            .map((d) => d.cantidadLeche)
+                                            .toList(),
+                                        yData: chartIngresoLecheRecordList
+                                            .map((d) => d.fechaExtraccion)
+                                            .toList(),
+                                        settings: LineChartBarData(
+                                          color: Color(0xFF1CB9CF),
+                                          barWidth: 2.0,
+                                          isCurved: true,
+                                          dotData: FlDotData(show: false),
+                                          belowBarData: BarAreaData(
+                                            show: true,
+                                            color: FlutterFlowTheme.of(context)
+                                                .accent1,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                    chartStylingInfo: ChartStylingInfo(
+                                      backgroundColor:
+                                          FlutterFlowTheme.of(context).primary,
+                                      showBorder: false,
+                                    ),
+                                    axisBounds: AxisBounds(),
+                                    xAxisLabelInfo: AxisLabelInfo(),
+                                    yAxisLabelInfo: AxisLabelInfo(),
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -178,93 +199,198 @@ class _HomeAdministrarLecheriaWidgetState
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Card(
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      color: FlutterFlowTheme.of(context).primary,
-                      elevation: 4.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            0.0, 10.0, 0.0, 10.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Text(
-                              '100',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'Readex Pro',
-                                    color:
-                                        FlutterFlowTheme.of(context).secondary,
-                                    fontSize: 73.0,
-                                  ),
-                            ),
-                            Text(
-                              'Goal de Producción (Kg)',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'Readex Pro',
-                                    color:
-                                        FlutterFlowTheme.of(context).secondary,
-                                    fontSize: 14.0,
-                                  ),
-                            ),
-                          ],
+              StreamBuilder<List<RegistroVentaRecord>>(
+                stream: queryRegistroVentaRecord(
+                  singleRecord: true,
+                ),
+                builder: (context, snapshot) {
+                  // Customize what your widget looks like when it's loading.
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: SizedBox(
+                        width: 50.0,
+                        height: 50.0,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            FlutterFlowTheme.of(context).primary,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Card(
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      color: FlutterFlowTheme.of(context).primary,
-                      elevation: 4.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            0.0, 10.0, 0.0, 10.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Text(
-                              '50',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'Readex Pro',
-                                    color:
-                                        FlutterFlowTheme.of(context).secondary,
-                                    fontSize: 73.0,
-                                  ),
+                    );
+                  }
+                  List<RegistroVentaRecord> dataCardsRegistroVentaRecordList =
+                      snapshot.data!;
+                  // Return an empty Container when the item does not exist.
+                  if (snapshot.data!.isEmpty) {
+                    return Container();
+                  }
+                  final dataCardsRegistroVentaRecord =
+                      dataCardsRegistroVentaRecordList.isNotEmpty
+                          ? dataCardsRegistroVentaRecordList.first
+                          : null;
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Card(
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          color: FlutterFlowTheme.of(context).primary,
+                          elevation: 4.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 10.0, 0.0, 10.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Text(
+                                  '100',
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        fontFamily: 'Readex Pro',
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondary,
+                                        fontSize: 73.0,
+                                      ),
+                                ),
+                                Text(
+                                  'Objetivo de Producción (L)',
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        fontFamily: 'Readex Pro',
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondary,
+                                        fontSize: 14.0,
+                                      ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              'Producción Total (Kg)',
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'Readex Pro',
-                                    color:
-                                        FlutterFlowTheme.of(context).secondary,
-                                    fontSize: 14.0,
-                                  ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
+                      Expanded(
+                        child: StreamBuilder<List<RegistroVentaRecord>>(
+                          stream: queryRegistroVentaRecord(
+                            singleRecord: true,
+                          ),
+                          builder: (context, snapshot) {
+                            // Customize what your widget looks like when it's loading.
+                            if (!snapshot.hasData) {
+                              return Center(
+                                child: SizedBox(
+                                  width: 50.0,
+                                  height: 50.0,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      FlutterFlowTheme.of(context).primary,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                            List<RegistroVentaRecord>
+                                cardRegistroVentaRecordList = snapshot.data!;
+                            // Return an empty Container when the item does not exist.
+                            if (snapshot.data!.isEmpty) {
+                              return Container();
+                            }
+                            final cardRegistroVentaRecord =
+                                cardRegistroVentaRecordList.isNotEmpty
+                                    ? cardRegistroVentaRecordList.first
+                                    : null;
+                            return Card(
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              color: FlutterFlowTheme.of(context).primary,
+                              elevation: 4.0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0.0, 10.0, 0.0, 10.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    StreamBuilder<List<RegistroVentaRecord>>(
+                                      stream: queryRegistroVentaRecord(
+                                        singleRecord: true,
+                                      ),
+                                      builder: (context, snapshot) {
+                                        // Customize what your widget looks like when it's loading.
+                                        if (!snapshot.hasData) {
+                                          return Center(
+                                            child: SizedBox(
+                                              width: 50.0,
+                                              height: 50.0,
+                                              child: CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                        List<RegistroVentaRecord>
+                                            textRegistroVentaRecordList =
+                                            snapshot.data!;
+                                        // Return an empty Container when the item does not exist.
+                                        if (snapshot.data!.isEmpty) {
+                                          return Container();
+                                        }
+                                        final textRegistroVentaRecord =
+                                            textRegistroVentaRecordList
+                                                    .isNotEmpty
+                                                ? textRegistroVentaRecordList
+                                                    .first
+                                                : null;
+                                        return Text(
+                                          valueOrDefault<String>(
+                                            FFAppState()
+                                                .totalLecheVendida
+                                                .toString(),
+                                            '0',
+                                          ),
+                                          style: FlutterFlowTheme.of(context)
+                                              .bodyMedium
+                                              .override(
+                                                fontFamily: 'Readex Pro',
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondary,
+                                                fontSize: 73.0,
+                                              ),
+                                        );
+                                      },
+                                    ),
+                                    Text(
+                                      'Producción Total (L)',
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily: 'Readex Pro',
+                                            color: FlutterFlowTheme.of(context)
+                                                .secondary,
+                                            fontSize: 14.0,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -295,8 +421,8 @@ class _HomeAdministrarLecheriaWidgetState
                                   ),
                             ),
                           ),
-                          FutureBuilder<int>(
-                            future: queryRegistroVentaRecordCount(
+                          StreamBuilder<List<RegistroVentaRecord>>(
+                            stream: queryRegistroVentaRecord(
                               queryBuilder: (registroVentaRecord) =>
                                   registroVentaRecord.where(
                                 'cantidadLecheVendida',
@@ -318,24 +444,22 @@ class _HomeAdministrarLecheriaWidgetState
                                   ),
                                 );
                               }
-                              int chartCount = snapshot.data!;
+                              List<RegistroVentaRecord>
+                                  chartRegistroVentaRecordList = snapshot.data!;
                               return Container(
                                 width: MediaQuery.sizeOf(context).width * 1.0,
                                 height: 127.0,
                                 child: FlutterFlowLineChart(
                                   data: [
                                     FFLineChartData(
-                                      xData: List.generate(
-                                          random_data.randomInteger(1, 10),
-                                          (index) =>
-                                              random_data.randomInteger(0, 10)),
-                                      yData: List.generate(
-                                          random_data.randomInteger(1, 10),
-                                          (index) =>
-                                              random_data.randomInteger(0, 10)),
+                                      xData: chartRegistroVentaRecordList
+                                          .map((d) => d.cantidadLecheVendida)
+                                          .toList(),
+                                      yData: chartRegistroVentaRecordList
+                                          .map((d) => d.fechaVenta)
+                                          .toList(),
                                       settings: LineChartBarData(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
+                                        color: Color(0xFF1CB9CF),
                                         barWidth: 2.0,
                                         isCurved: true,
                                         dotData: FlDotData(show: false),

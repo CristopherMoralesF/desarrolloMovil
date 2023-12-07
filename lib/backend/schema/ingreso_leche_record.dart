@@ -27,14 +27,14 @@ class IngresoLecheRecord extends FirestoreRecord {
   bool hasCantidadLeche() => _cantidadLeche != null;
 
   // "fechaExtraccion" field.
-  String? _fechaExtraccion;
-  String get fechaExtraccion => _fechaExtraccion ?? '';
+  DateTime? _fechaExtraccion;
+  DateTime? get fechaExtraccion => _fechaExtraccion;
   bool hasFechaExtraccion() => _fechaExtraccion != null;
 
   void _initializeFields() {
     _vacaSeleccionada = snapshotData['vacaSeleccionada'] as String?;
     _cantidadLeche = castToType<double>(snapshotData['cantidadLeche']);
-    _fechaExtraccion = snapshotData['fechaExtraccion'] as String?;
+    _fechaExtraccion = snapshotData['fechaExtraccion'] as DateTime?;
   }
 
   static CollectionReference get collection =>
@@ -74,7 +74,7 @@ class IngresoLecheRecord extends FirestoreRecord {
 Map<String, dynamic> createIngresoLecheRecordData({
   String? vacaSeleccionada,
   double? cantidadLeche,
-  String? fechaExtraccion,
+  DateTime? fechaExtraccion,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{

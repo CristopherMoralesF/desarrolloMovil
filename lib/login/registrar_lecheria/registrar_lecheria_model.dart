@@ -1,9 +1,10 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import '/custom_code/actions/index.dart' as actions;
-import '/flutter_flow/random_data_util.dart' as random_data;
 import 'registrar_lecheria_widget.dart' show RegistrarLecheriaWidget;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,6 +37,8 @@ class RegistrarLecheriaModel extends FlutterFlowModel<RegistrarLecheriaWidget> {
   late bool txtPasswordConfirmationVisibility;
   String? Function(BuildContext, String?)?
       txtPasswordConfirmationControllerValidator;
+  // Stores action output result for [Backend Call - Create Document] action in Button widget.
+  LecheriaRecord? lecheriaOutput;
 
   /// Initialization and disposal methods.
 

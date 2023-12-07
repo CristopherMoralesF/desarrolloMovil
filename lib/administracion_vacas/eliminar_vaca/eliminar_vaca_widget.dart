@@ -1,3 +1,4 @@
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -5,7 +6,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +13,12 @@ import 'eliminar_vaca_model.dart';
 export 'eliminar_vaca_model.dart';
 
 class EliminarVacaWidget extends StatefulWidget {
-  const EliminarVacaWidget({Key? key}) : super(key: key);
+  const EliminarVacaWidget({
+    Key? key,
+    required this.eliminarVaca,
+  }) : super(key: key);
+
+  final VacaRecord? eliminarVaca;
 
   @override
   _EliminarVacaWidgetState createState() => _EliminarVacaWidgetState();
@@ -28,11 +33,6 @@ class _EliminarVacaWidgetState extends State<EliminarVacaWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => EliminarVacaModel());
-
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      context.pushNamed('mainMenu');
-    });
   }
 
   @override
@@ -52,6 +52,8 @@ class _EliminarVacaWidgetState extends State<EliminarVacaWidget> {
         ),
       );
     }
+
+    context.watch<FFAppState>();
 
     return GestureDetector(
       onTap: () => _model.unfocusNode.canRequestFocus
@@ -78,7 +80,7 @@ class _EliminarVacaWidgetState extends State<EliminarVacaWidget> {
             },
           ),
           title: Text(
-            'Eliminar Vaca Número 1',
+            'Eliminar Vaca',
             style: FlutterFlowTheme.of(context).headlineMedium.override(
                   fontFamily: 'Outfit',
                   color: Colors.white,
@@ -151,8 +153,8 @@ class _EliminarVacaWidgetState extends State<EliminarVacaWidget> {
                         padding:
                             EdgeInsetsDirectional.fromSTEB(0.0, 25.0, 0.0, 0.0),
                         child: FFButtonWidget(
-                          onPressed: () {
-                            print('Button pressed ...');
+                          onPressed: () async {
+                            await widget.eliminarVaca!.reference.delete();
                           },
                           text: 'Eliminar Vaca',
                           options: FFButtonOptions(

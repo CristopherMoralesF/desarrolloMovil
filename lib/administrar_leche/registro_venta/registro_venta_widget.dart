@@ -1,12 +1,13 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
+import '/components/venta_mensaje_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -30,19 +31,11 @@ class _RegistroVentaWidgetState extends State<RegistroVentaWidget> {
     super.initState();
     _model = createModel(context, () => RegistroVentaModel());
 
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      context.pushNamed('mainMenu');
-    });
-
     _model.txtIdVentaController ??= TextEditingController();
     _model.txtIdVentaFocusNode ??= FocusNode();
 
     _model.txtCantidadVentaController ??= TextEditingController();
     _model.txtCantidadVentaFocusNode ??= FocusNode();
-
-    _model.txtFechaVentaController ??= TextEditingController();
-    _model.txtFechaVentaFocusNode ??= FocusNode();
   }
 
   @override
@@ -62,6 +55,8 @@ class _RegistroVentaWidgetState extends State<RegistroVentaWidget> {
         ),
       );
     }
+
+    context.watch<FFAppState>();
 
     return GestureDetector(
       onTap: () => _model.unfocusNode.canRequestFocus
@@ -84,7 +79,7 @@ class _RegistroVentaWidgetState extends State<RegistroVentaWidget> {
               size: 30.0,
             ),
             onPressed: () async {
-              context.pop();
+              context.pushNamed('homeAdministrarLecheria');
             },
           ),
           title: Text(
@@ -121,7 +116,7 @@ class _RegistroVentaWidgetState extends State<RegistroVentaWidget> {
                         autofocus: true,
                         obscureText: false,
                         decoration: InputDecoration(
-                          labelText: 'Indique el identificador de la orden',
+                          labelText: 'Indique el numero de factura de la orden',
                           labelStyle: FlutterFlowTheme.of(context).labelMedium,
                           hintStyle: FlutterFlowTheme.of(context).labelMedium,
                           enabledBorder: OutlineInputBorder(
@@ -154,6 +149,13 @@ class _RegistroVentaWidgetState extends State<RegistroVentaWidget> {
                           ),
                         ),
                         style: FlutterFlowTheme.of(context).bodyMedium,
+                        maxLength: 255,
+                        maxLengthEnforcement: MaxLengthEnforcement.none,
+                        buildCounter: (context,
+                                {required currentLength,
+                                required isFocused,
+                                maxLength}) =>
+                            null,
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         validator: _model.txtIdVentaControllerValidator
@@ -169,7 +171,7 @@ class _RegistroVentaWidgetState extends State<RegistroVentaWidget> {
                         autofocus: true,
                         obscureText: false,
                         decoration: InputDecoration(
-                          labelText: 'Indique la cantidad de leche en KG',
+                          labelText: 'Indique la cantidad de leche en L',
                           labelStyle: FlutterFlowTheme.of(context).labelMedium,
                           hintStyle: FlutterFlowTheme.of(context).labelMedium,
                           enabledBorder: OutlineInputBorder(
@@ -202,6 +204,13 @@ class _RegistroVentaWidgetState extends State<RegistroVentaWidget> {
                           ),
                         ),
                         style: FlutterFlowTheme.of(context).bodyMedium,
+                        maxLength: 255,
+                        maxLengthEnforcement: MaxLengthEnforcement.none,
+                        buildCounter: (context,
+                                {required currentLength,
+                                required isFocused,
+                                maxLength}) =>
+                            null,
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         validator: _model.txtCantidadVentaControllerValidator
@@ -210,49 +219,75 @@ class _RegistroVentaWidgetState extends State<RegistroVentaWidget> {
                     ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(50.0, 25.0, 50.0, 0.0),
-                      child: TextFormField(
-                        controller: _model.txtFechaVentaController,
-                        focusNode: _model.txtFechaVentaFocusNode,
-                        autofocus: true,
-                        obscureText: false,
-                        decoration: InputDecoration(
-                          labelText: 'Indique la fecha de venta',
-                          labelStyle: FlutterFlowTheme.of(context).labelMedium,
-                          hintStyle: FlutterFlowTheme.of(context).labelMedium,
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: FlutterFlowTheme.of(context).alternate,
-                              width: 2.0,
-                            ),
-                            borderRadius: BorderRadius.circular(8.0),
+                          EdgeInsetsDirectional.fromSTEB(0.0, 25.0, 0.0, 0.0),
+                      child: FFButtonWidget(
+                        onPressed: () async {
+                          final _datePickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: getCurrentTimestamp,
+                            firstDate: getCurrentTimestamp,
+                            lastDate: DateTime(2050),
+                            builder: (context, child) {
+                              return wrapInMaterialDatePickerTheme(
+                                context,
+                                child!,
+                                headerBackgroundColor:
+                                    FlutterFlowTheme.of(context).primary,
+                                headerForegroundColor:
+                                    FlutterFlowTheme.of(context).info,
+                                headerTextStyle: FlutterFlowTheme.of(context)
+                                    .headlineLarge
+                                    .override(
+                                      fontFamily: 'Outfit',
+                                      fontSize: 32.0,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                pickerBackgroundColor:
+                                    FlutterFlowTheme.of(context)
+                                        .secondaryBackground,
+                                pickerForegroundColor:
+                                    FlutterFlowTheme.of(context).primaryText,
+                                selectedDateTimeBackgroundColor:
+                                    FlutterFlowTheme.of(context).primary,
+                                selectedDateTimeForegroundColor:
+                                    FlutterFlowTheme.of(context).info,
+                                actionButtonForegroundColor:
+                                    FlutterFlowTheme.of(context).primaryText,
+                                iconSize: 24.0,
+                              );
+                            },
+                          );
+
+                          if (_datePickedDate != null) {
+                            safeSetState(() {
+                              _model.datePicked = DateTime(
+                                _datePickedDate.year,
+                                _datePickedDate.month,
+                                _datePickedDate.day,
+                              );
+                            });
+                          }
+                        },
+                        text: 'Seleccione la fecha de la venta',
+                        options: FFButtonOptions(
+                          height: 40.0,
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              24.0, 0.0, 24.0, 0.0),
+                          iconPadding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 0.0, 0.0),
+                          color: FlutterFlowTheme.of(context).primary,
+                          textStyle:
+                              FlutterFlowTheme.of(context).titleSmall.override(
+                                    fontFamily: 'Readex Pro',
+                                    color: Colors.white,
+                                  ),
+                          elevation: 3.0,
+                          borderSide: BorderSide(
+                            color: Colors.transparent,
+                            width: 1.0,
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: FlutterFlowTheme.of(context).primary,
-                              width: 2.0,
-                            ),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: FlutterFlowTheme.of(context).error,
-                              width: 2.0,
-                            ),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: FlutterFlowTheme.of(context).error,
-                              width: 2.0,
-                            ),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
-                        style: FlutterFlowTheme.of(context).bodyMedium,
-                        keyboardType: TextInputType.datetime,
-                        validator: _model.txtFechaVentaControllerValidator
-                            .asValidator(context),
                       ),
                     ),
                     Padding(
@@ -267,8 +302,26 @@ class _RegistroVentaWidgetState extends State<RegistroVentaWidget> {
                                     _model.txtIdVentaController.text,
                                 cantidadLecheVendida: double.tryParse(
                                     _model.txtCantidadVentaController.text),
-                                fechaVenta: _model.txtFechaVentaController.text,
+                                fechaVenta: _model.datePicked,
                               ));
+                          await showModalBottomSheet(
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            enableDrag: false,
+                            context: context,
+                            builder: (context) {
+                              return GestureDetector(
+                                onTap: () => _model.unfocusNode.canRequestFocus
+                                    ? FocusScope.of(context)
+                                        .requestFocus(_model.unfocusNode)
+                                    : FocusScope.of(context).unfocus(),
+                                child: Padding(
+                                  padding: MediaQuery.viewInsetsOf(context),
+                                  child: VentaMensajeWidget(),
+                                ),
+                              );
+                            },
+                          ).then((value) => safeSetState(() {}));
                         },
                         text: 'Guardar Venta de Leche',
                         options: FFButtonOptions(

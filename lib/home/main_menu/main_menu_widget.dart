@@ -1,9 +1,13 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/custom_code/actions/index.dart' as actions;
 import 'package:smooth_page_indicator/smooth_page_indicator.dart'
     as smooth_page_indicator;
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +30,22 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => MainMenuModel());
+
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      _model.totalCowsValue = await actions.firebaseservice();
+      setState(() {
+        FFAppState().totalCows = _model.totalCowsValue!;
+      });
+      _model.totalLecheVar = await actions.sumCantidadLecheGenerada();
+      setState(() {
+        FFAppState().totalLecheLitros = _model.totalLecheVar!;
+      });
+      _model.totalLecheVendidaVar = await actions.sumCantidadLecheVendida();
+      setState(() {
+        FFAppState().totalLecheVendida = _model.totalLecheVendidaVar!;
+      });
+    });
   }
 
   @override
@@ -45,6 +65,8 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
         ),
       );
     }
+
+    context.watch<FFAppState>();
 
     return GestureDetector(
       onTap: () => _model.unfocusNode.canRequestFocus
@@ -78,13 +100,47 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Text(
-                      '¡Hola {Nombre Usuario}!',
-                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                            fontFamily: 'Readex Pro',
-                            color: Color(0x9209224C),
-                            fontSize: 34.0,
-                          ),
+                    AuthUserStreamWidget(
+                      builder: (context) => StreamBuilder<List<UsersRecord>>(
+                        stream: queryUsersRecord(
+                          singleRecord: true,
+                        ),
+                        builder: (context, snapshot) {
+                          // Customize what your widget looks like when it's loading.
+                          if (!snapshot.hasData) {
+                            return Center(
+                              child: SizedBox(
+                                width: 50.0,
+                                height: 50.0,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    FlutterFlowTheme.of(context).primary,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          List<UsersRecord> textUsersRecordList =
+                              snapshot.data!;
+                          // Return an empty Container when the item does not exist.
+                          if (snapshot.data!.isEmpty) {
+                            return Container();
+                          }
+                          final textUsersRecord = textUsersRecordList.isNotEmpty
+                              ? textUsersRecordList.first
+                              : null;
+                          return Text(
+                            currentUserDisplayName,
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  fontFamily: 'Readex Pro',
+                                  color: Color(0x9209224C),
+                                  fontSize: 34.0,
+                                ),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -187,7 +243,12 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
                                                             .center,
                                                     children: [
                                                       Text(
-                                                        '45',
+                                                        valueOrDefault<String>(
+                                                          FFAppState()
+                                                              .totalCows
+                                                              .toString(),
+                                                          '0',
+                                                        ),
                                                         style:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -276,7 +337,7 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
                                                             .center,
                                                     children: [
                                                       Text(
-                                                        'Kilos de Leche en \nBodegas',
+                                                        'Litros de Leche en \nBodegas',
                                                         textAlign:
                                                             TextAlign.center,
                                                         style:
@@ -300,11 +361,55 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
                                                         MainAxisAlignment
                                                             .center,
                                                     children: [
-                                                      Text(
-                                                        '45',
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
+                                                      StreamBuilder<
+                                                          List<
+                                                              IngresoLecheRecord>>(
+                                                        stream:
+                                                            queryIngresoLecheRecord(
+                                                          singleRecord: true,
+                                                        ),
+                                                        builder: (context,
+                                                            snapshot) {
+                                                          // Customize what your widget looks like when it's loading.
+                                                          if (!snapshot
+                                                              .hasData) {
+                                                            return Center(
+                                                              child: SizedBox(
+                                                                width: 50.0,
+                                                                height: 50.0,
+                                                                child:
+                                                                    CircularProgressIndicator(
+                                                                  valueColor:
+                                                                      AlwaysStoppedAnimation<
+                                                                          Color>(
+                                                                    FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primary,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          }
+                                                          List<IngresoLecheRecord>
+                                                              textIngresoLecheRecordList =
+                                                              snapshot.data!;
+                                                          // Return an empty Container when the item does not exist.
+                                                          if (snapshot
+                                                              .data!.isEmpty) {
+                                                            return Container();
+                                                          }
+                                                          final textIngresoLecheRecord =
+                                                              textIngresoLecheRecordList
+                                                                      .isNotEmpty
+                                                                  ? textIngresoLecheRecordList
+                                                                      .first
+                                                                  : null;
+                                                          return Text(
+                                                            FFAppState()
+                                                                .totalLecheLitros
+                                                                .toString(),
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
                                                                 .bodyMedium
                                                                 .override(
                                                                   fontFamily:
@@ -315,6 +420,8 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
                                                                   fontSize:
                                                                       37.0,
                                                                 ),
+                                                          );
+                                                        },
                                                       ),
                                                     ],
                                                   ),
@@ -367,7 +474,7 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
                                                         BorderRadius.circular(
                                                             8.0),
                                                     child: Image.asset(
-                                                      'assets/images/medical-history.png',
+                                                      'assets/images/money.png',
                                                       width: 101.0,
                                                       height: 96.0,
                                                       fit: BoxFit.contain,
@@ -390,7 +497,7 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
                                                             .center,
                                                     children: [
                                                       Text(
-                                                        'total Vacas en \nTratamiento',
+                                                        'Total Venta\nLeche',
                                                         textAlign:
                                                             TextAlign.center,
                                                         style:
@@ -415,7 +522,9 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
                                                             .center,
                                                     children: [
                                                       Text(
-                                                        '2',
+                                                        FFAppState()
+                                                            .totalLecheVendida
+                                                            .toString(),
                                                         style:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -717,7 +826,13 @@ class _MainMenuWidgetState extends State<MainMenuWidget> {
                                       30.0, 0.0, 30.0, 0.0),
                                   child: FFButtonWidget(
                                     onPressed: () async {
-                                      context.pushNamed('Login');
+                                      GoRouter.of(context).prepareAuthEvent();
+                                      await authManager.signOut();
+                                      GoRouter.of(context)
+                                          .clearRedirectLocation();
+
+                                      context.goNamedAuth(
+                                          'mainMenu', context.mounted);
                                     },
                                     text: 'Cerrar Sesión',
                                     options: FFButtonOptions(

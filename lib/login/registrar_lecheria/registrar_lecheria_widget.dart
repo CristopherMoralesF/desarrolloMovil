@@ -1,8 +1,9 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import '/custom_code/actions/index.dart' as actions;
-import '/flutter_flow/random_data_util.dart' as random_data;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -61,6 +62,8 @@ class _RegistrarLecheriaWidgetState extends State<RegistrarLecheriaWidget> {
         ),
       );
     }
+
+    context.watch<FFAppState>();
 
     return GestureDetector(
       onTap: () => _model.unfocusNode.canRequestFocus
@@ -225,7 +228,7 @@ class _RegistrarLecheriaWidgetState extends State<RegistrarLecheriaWidget> {
                             autofocus: true,
                             obscureText: false,
                             decoration: InputDecoration(
-                              labelText: 'Nombre de Usuario',
+                              labelText: 'Correo Electronico',
                               labelStyle:
                                   FlutterFlowTheme.of(context).labelMedium,
                               hintStyle:
@@ -377,30 +380,59 @@ class _RegistrarLecheriaWidgetState extends State<RegistrarLecheriaWidget> {
               ),
               Row(
                 mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Padding(
                     padding:
                         EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 0.0),
                     child: FFButtonWidget(
                       onPressed: () async {
+                        Function() _navigate = () {};
                         if (_model.txtPasswordController.text ==
                             _model.txtPasswordConfirmationController.text) {
-                          await actions.creteLecheria(
-                            _model.txtUserEmailController.text,
-                            _model.txtUserNameController.text,
-                            _model.txtPasswordController.text,
-                            random_data.randomString(
-                              1,
-                              20,
-                              true,
-                              false,
-                              false,
-                            ),
-                            _model.txtDairyNameController.text,
-                          );
+                          var lecheriaRecordReference =
+                              LecheriaRecord.collection.doc();
+                          await lecheriaRecordReference
+                              .set(createLecheriaRecordData(
+                            nombreLecheria: _model.txtDairyNameController.text,
+                          ));
+                          _model.lecheriaOutput =
+                              LecheriaRecord.getDocumentFromData(
+                                  createLecheriaRecordData(
+                                    nombreLecheria:
+                                        _model.txtDairyNameController.text,
+                                  ),
+                                  lecheriaRecordReference);
+                          GoRouter.of(context).prepareAuthEvent();
+                          if (_model.txtPasswordController.text !=
+                              _model.txtPasswordConfirmationController.text) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Passwords don\'t match!',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
 
-                          context.pushNamed('Login');
+                          final user = await authManager.createAccountWithEmail(
+                            context,
+                            _model.txtUserEmailController.text,
+                            _model.txtPasswordController.text,
+                          );
+                          if (user == null) {
+                            return;
+                          }
+
+                          await UsersRecord.collection
+                              .doc(user.uid)
+                              .update(createUsersRecordData(
+                                email: _model.txtUserEmailController.text,
+                              ));
+
+                          _navigate = () => context.goNamedAuth(
+                              'InventarioVacas', context.mounted);
                         } else {
                           await showDialog(
                             context: context,
@@ -420,8 +452,42 @@ class _RegistrarLecheriaWidgetState extends State<RegistrarLecheriaWidget> {
                             },
                           );
                         }
+
+                        _navigate();
+
+                        setState(() {});
                       },
                       text: 'Registrar Lechería',
+                      options: FFButtonOptions(
+                        width: 195.0,
+                        height: 40.0,
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            24.0, 0.0, 24.0, 0.0),
+                        iconPadding:
+                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                        color: FlutterFlowTheme.of(context).tertiary,
+                        textStyle:
+                            FlutterFlowTheme.of(context).titleSmall.override(
+                                  fontFamily: 'Readex Pro',
+                                  color: Colors.white,
+                                ),
+                        elevation: 3.0,
+                        borderSide: BorderSide(
+                          color: Colors.transparent,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 0.0),
+                    child: FFButtonWidget(
+                      onPressed: () async {
+                        context.pushNamed('Login');
+                      },
+                      text: 'Volver',
                       options: FFButtonOptions(
                         width: 195.0,
                         height: 40.0,

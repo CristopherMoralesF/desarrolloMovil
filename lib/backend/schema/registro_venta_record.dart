@@ -26,22 +26,22 @@ class RegistroVentaRecord extends FirestoreRecord {
   double get cantidadLecheVendida => _cantidadLecheVendida ?? 0.0;
   bool hasCantidadLecheVendida() => _cantidadLecheVendida != null;
 
-  // "fechaVenta" field.
-  String? _fechaVenta;
-  String get fechaVenta => _fechaVenta ?? '';
-  bool hasFechaVenta() => _fechaVenta != null;
-
   // "uid" field.
   String? _uid;
   String get uid => _uid ?? '';
   bool hasUid() => _uid != null;
 
+  // "fechaVenta" field.
+  DateTime? _fechaVenta;
+  DateTime? get fechaVenta => _fechaVenta;
+  bool hasFechaVenta() => _fechaVenta != null;
+
   void _initializeFields() {
     _identificadorVenta = snapshotData['identificadorVenta'] as String?;
     _cantidadLecheVendida =
         castToType<double>(snapshotData['cantidadLecheVendida']);
-    _fechaVenta = snapshotData['fechaVenta'] as String?;
     _uid = snapshotData['uid'] as String?;
+    _fechaVenta = snapshotData['fechaVenta'] as DateTime?;
   }
 
   static CollectionReference get collection =>
@@ -81,15 +81,15 @@ class RegistroVentaRecord extends FirestoreRecord {
 Map<String, dynamic> createRegistroVentaRecordData({
   String? identificadorVenta,
   double? cantidadLecheVendida,
-  String? fechaVenta,
   String? uid,
+  DateTime? fechaVenta,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
       'identificadorVenta': identificadorVenta,
       'cantidadLecheVendida': cantidadLecheVendida,
-      'fechaVenta': fechaVenta,
       'uid': uid,
+      'fechaVenta': fechaVenta,
     }.withoutNulls,
   );
 
@@ -104,13 +104,13 @@ class RegistroVentaRecordDocumentEquality
   bool equals(RegistroVentaRecord? e1, RegistroVentaRecord? e2) {
     return e1?.identificadorVenta == e2?.identificadorVenta &&
         e1?.cantidadLecheVendida == e2?.cantidadLecheVendida &&
-        e1?.fechaVenta == e2?.fechaVenta &&
-        e1?.uid == e2?.uid;
+        e1?.uid == e2?.uid &&
+        e1?.fechaVenta == e2?.fechaVenta;
   }
 
   @override
   int hash(RegistroVentaRecord? e) => const ListEquality().hash(
-      [e?.identificadorVenta, e?.cantidadLecheVendida, e?.fechaVenta, e?.uid]);
+      [e?.identificadorVenta, e?.cantidadLecheVendida, e?.uid, e?.fechaVenta]);
 
   @override
   bool isValidKey(Object? o) => o is RegistroVentaRecord;

@@ -1,9 +1,11 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -26,11 +28,6 @@ class _EditarEnfermedadWidgetState extends State<EditarEnfermedadWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => EditarEnfermedadModel());
-
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      context.pushNamed('mainMenu');
-    });
 
     _model.textController1 ??= TextEditingController(text: 'Infertilidad');
     _model.textFieldFocusNode1 ??= FocusNode();
@@ -58,6 +55,8 @@ class _EditarEnfermedadWidgetState extends State<EditarEnfermedadWidget> {
         ),
       );
     }
+
+    context.watch<FFAppState>();
 
     return GestureDetector(
       onTap: () => _model.unfocusNode.canRequestFocus
@@ -212,7 +211,12 @@ class _EditarEnfermedadWidgetState extends State<EditarEnfermedadWidget> {
                             0.0, 25.0, 0.0, 10.0),
                         child: FFButtonWidget(
                           onPressed: () async {
-                            context.pushNamed('registrosMedicosVaca');
+                            await RegistroEnfermedadRecord.collection
+                                .doc()
+                                .set(createRegistroEnfermedadRecordData(
+                                  nombreEnfermedad: _model.textController1.text,
+                                  descripcion: _model.textController2.text,
+                                ));
                           },
                           text: 'Guardar',
                           icon: Icon(
